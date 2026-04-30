@@ -1,0 +1,308 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ===== Color Palette ===== */
+  --color-navy-50: #EBF0F7;
+  --color-navy-100: #D6E0EE;
+  --color-navy-200: #ADC1DE;
+  --color-navy-300: #84A2CD;
+  --color-navy-400: #5B83BD;
+  --color-navy-500: #2D5A9E;
+  --color-navy-600: #1A365D;
+  --color-navy-700: #152C4D;
+  --color-navy-800: #10213A;
+  --color-navy-900: #0B1627;
+
+  --color-emerald-50: #E6F7EE;
+  --color-emerald-100: #C6EDDA;
+  --color-emerald-200: #8DDBB5;
+  --color-emerald-300: #54C990;
+  --color-emerald-400: #38A169;
+  --color-emerald-500: #2E8456;
+  --color-emerald-600: #256843;
+  --color-emerald-700: #1B4C30;
+  --color-emerald-800: #12301E;
+  --color-emerald-900: #08140C;
+
+  --color-background: #F7FAFC;
+  --color-surface: #FFFFFF;
+  --color-foreground: #1A202C;
+  --color-muted: #718096;
+  --color-border: #E2E8F0;
+  --color-danger: #E53E3E;
+  --color-warning: #DD6B20;
+  
+  /* ===== Fonts ===== */
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "DM Mono", ui-monospace, monospace;
+
+  /* ===== Radius ===== */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+
+  /* ===== Shadows ===== */
+  --shadow-card: 0 1px 3px 0 rgba(0, 0, 0, 0.06), 0 1px 2px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+
+  /* ===== Sidebar ===== */
+  --sidebar-width: 240px;
+  --header-height: 64px;
+  --cart-width: 380px;
+}
+
+
+/* ===== Base Styles ===== */
+* {
+  border-color: var(--color-border);
+}
+
+body {
+  background: var(--color-background);
+  color: var(--color-foreground);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ===== Price / Number Font ===== */
+.font-mono,
+.price {
+  font-family: var(--font-mono);
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-muted);
+}
+
+/* ===== Custom Animations ===== */
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(100%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(100%); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes bounce-in {
+  0% { transform: scale(0); }
+  50% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+
+.animate-fade-in {
+  animation: fade-in 0.3s ease-out;
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.3s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.2s ease-out;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-bounce-in {
+  animation: bounce-in 0.4s ease-out;
+}
+
+/* ===== Product Card Hover ===== */
+.product-card {
+  transition: all 0.2s ease;
+}
+
+.product-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.product-card:active {
+  transform: translateY(0);
+}
+
+/* ===== Color Swatch ===== */
+.color-swatch {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.color-swatch:hover {
+  transform: scale(1.2);
+}
+
+.color-swatch.selected {
+  border-color: var(--color-navy-600);
+  box-shadow: 0 0 0 2px var(--color-navy-200);
+}
+
+.color-swatch-lg {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.color-swatch-lg:hover {
+  transform: scale(1.15);
+}
+
+.color-swatch-lg.selected {
+  border-color: var(--color-navy-600);
+  box-shadow: 0 0 0 3px var(--color-navy-200);
+}
+
+/* ===== Size Button ===== */
+.size-btn {
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  border: 1.5px solid var(--color-border);
+  font-weight: 500;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: white;
+  color: var(--color-foreground);
+}
+
+.size-btn:hover:not(:disabled) {
+  border-color: var(--color-navy-400);
+  background: var(--color-navy-50);
+}
+
+.size-btn.selected {
+  background: var(--color-navy-600);
+  color: white;
+  border-color: var(--color-navy-600);
+}
+
+.size-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+/* ===== Badge Styles ===== */
+.badge-out-of-stock {
+  background: var(--color-danger);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+.badge-low-stock {
+  background: var(--color-warning);
+  color: white;
+  font-size: 0.7rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 9999px;
+}
+
+/* ===== Print Styles ===== */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  .receipt-print,
+  .receipt-print * {
+    visibility: visible;
+  }
+
+  .receipt-print {
+    position: fixed;
+    left: 0;
+    top: 0;
+    width: 80mm;
+    padding: 4mm;
+    margin: 0;
+    font-size: 10px;
+    line-height: 1.4;
+    font-family: "Courier New", monospace;
+    color: #000;
+    background: #fff;
+    z-index: 999999;
+  }
+
+  @page {
+    size: 80mm auto;
+    margin: 0mm;
+  }
+}
+
+/* ===== Layout Utility ===== */
+.sidebar-layout {
+  padding-left: 0;
+}
+
+@media (min-width: 1280px) {
+  .sidebar-layout {
+    padding-left: var(--sidebar-width);
+  }
+}
+
+/* ===== Mobile Bottom Bar Space ===== */
+.bottom-bar-space {
+  padding-bottom: 0;
+}
+
+@media (max-width: 767px) {
+  .bottom-bar-space {
+    padding-bottom: 80px;
+  }
+}

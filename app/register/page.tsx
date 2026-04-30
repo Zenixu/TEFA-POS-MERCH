@@ -125,7 +125,7 @@ export default function RegisterPage() {
                       name="firstName"
                       value={formData.firstName}
                       onChange={handleChange}
-                      placeholder="Zenn"
+                      placeholder="Masukkan nama depan casshier"
                       required
                       className="w-full h-10 px-4 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-sm"
                     />
@@ -136,7 +136,7 @@ export default function RegisterPage() {
                       name="lastName"
                       value={formData.lastName}
                       onChange={handleChange}
-                      placeholder="Rich"
+                      placeholder="Masukkan nama belakang casshier(opsional)"
                       required
                       className="w-full h-10 px-4 rounded-xl bg-white/[0.06] border border-white/[0.1] text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 text-sm"
                     />

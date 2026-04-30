@@ -1,9 +1,12 @@
+import "dotenv/config";
 import { prisma } from "../lib/prisma";
+import bcrypt from "bcryptjs";
 
 async function main() {
-  console.log("Seeding started...");
+  console.log("🚀 Seeding started...");
 
-  // 1. Membersihkan data lama
+  // 1. Cleanup old data
+  console.log("🧹 Cleaning up old data...");
   await prisma.orderItem.deleteMany();
   await prisma.order.deleteMany();
   await prisma.productVariant.deleteMany();
@@ -11,12 +14,14 @@ async function main() {
   await prisma.category.deleteMany();
   await prisma.customer.deleteMany();
   await prisma.supplier.deleteMany();
+  // Don't delete users to avoid locking yourself out, but upsert the admin
 
-  // 2. Buat User Admin (karena force reset menghapus seluruh table)
-  const bcrypt = require("bcryptjs");
+  // 2. Admin User
   const hashedPassword = await bcrypt.hash("admin123", 10);
-  await prisma.user.create({
-    data: {
+  await prisma.user.upsert({
+    where: { email: "admin@tefamerch.com" },
+    update: { passwordHash: hashedPassword },
+    create: {
       email: "admin@tefamerch.com",
       passwordHash: hashedPassword,
       firstName: "Super",
@@ -24,103 +29,205 @@ async function main() {
       role: "SUPERADMIN",
     }
   });
+  console.log("👤 Admin user ready (admin@tefamerch.com / admin123)");
 
-  // 3. Buat Kategori
-  const catApparel = await prisma.category.create({ data: { name: "Apparel" } });
-  const catAccessory = await prisma.category.create({ data: { name: "Accessories" } });
-  const catBags = await prisma.category.create({ data: { name: "Bags" } });
+  // 3. Categories
+  const categories = [
+    { name: "Apparel" },
+    { name: "Accessories" },
+    { name: "Bags" },
+    { name: "Headwear" },
+    { name: "Stationery" }
+  ];
 
-  // 4. Buat Produk Dummy dengan Gambar
-  const tShirt = await prisma.product.create({
-    data: {
+  const createdCategories = [];
+  for (const cat of categories) {
+    const c = await prisma.category.create({ data: cat });
+    createdCategories.push(c);
+  }
+  console.log(`📂 Created ${createdCategories.length} categories`);
+
+  const [catApparel, catAccessory, catBags, catHeadwear, catStationery] = createdCategories;
+
+  // 4. Products & Variants
+  const products = [
+    // Apparel
+    {
       name: "T-Shirt Classic Logo",
-      description: "Kaos berbahan katun lembut dengan logo bordir.",
+      description: "Kaos premium 100% Cotton Combed 30s.",
       basePrice: 150000,
       categoryId: catApparel.id,
-      brand: "TEFA Original",
-      imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600&auto=format&fit=crop",
-      variants: {
-        create: [
-          { sku: "TSHIRT-BLK-M-1", color: "Hitam", colorHex: "#000000", size: "M", stock: 15 },
-          { sku: "TSHIRT-BLK-L-1", color: "Hitam", colorHex: "#000000", size: "L", stock: 20 },
-          { sku: "TSHIRT-WHT-L-1", color: "Putih", colorHex: "#FFFFFF", size: "L", stock: 10 }
-        ]
-      }
-    }
-  });
-
-  const hoodie = await prisma.product.create({
-    data: {
+      brand: "TEFA Origin",
+      imageUrl: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab?q=80&w=600",
+      variants: [
+        { sku: "TS-BLK-S", color: "Hitam", colorHex: "#000000", size: "S", stock: 20 },
+        { sku: "TS-BLK-M", color: "Hitam", colorHex: "#000000", size: "M", stock: 25 },
+        { sku: "TS-BLK-L", color: "Hitam", colorHex: "#000000", size: "L", stock: 15 },
+        { sku: "TS-WHT-M", color: "Putih", colorHex: "#FFFFFF", size: "M", stock: 30 },
+      ]
+    },
+    {
       name: "Essential Oversized Hoodie",
-      description: "Hoodie tebal dengan potongan oversized yang nyaman.",
+      description: "Hoodie fleece tebal dengan potongan oversized.",
       basePrice: 350000,
       categoryId: catApparel.id,
       brand: "TEFA Origin",
-      imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600&auto=format&fit=crop",
-      variants: {
-        create: [
-          { sku: "HOOD-GRY-L-1", color: "Abu-abu", colorHex: "#808080", size: "L", stock: 8 },
-          { sku: "HOOD-GRY-XL-1", color: "Abu-abu", colorHex: "#808080", size: "XL", stock: 12 },
-        ]
-      }
-    }
-  });
-
-  const cap = await prisma.product.create({
-    data: {
+      imageUrl: "https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=600",
+      variants: [
+        { sku: "HD-GRY-L", color: "Grey", colorHex: "#808080", size: "L", stock: 10 },
+        { sku: "HD-GRY-XL", color: "Grey", colorHex: "#808080", size: "XL", stock: 5 },
+        { sku: "HD-BLK-L", color: "Black", colorHex: "#000000", size: "L", stock: 12 },
+      ]
+    },
+    // Headwear
+    {
       name: "Vintage Dad Cap",
-      description: "Topi bergaya vintage dengan bordir rapi.",
-      basePrice: 99000,
-      categoryId: catAccessory.id,
-      brand: "Lokal pride",
-      imageUrl: "https://images.unsplash.com/photo-1521369909029-2afed882baee?q=80&w=600&auto=format&fit=crop",
-      variants: {
-        create: [
-          { sku: "CAP-NAVY-OS", color: "Navy", colorHex: "#000080", size: "ONE_SIZE", stock: 30 },
-          { sku: "CAP-OLIVE-OS", color: "Olive", colorHex: "#808000", size: "ONE_SIZE", stock: 25 },
-        ]
-      }
-    }
-  });
-  
-  const tote = await prisma.product.create({
-    data: {
-      name: "Signature Canvas Tote",
-      description: "Tote bag kanvas super tebal, cocok untuk laptop.",
-      basePrice: 120000,
+      description: "Topi baseball dengan finishing washed vintage.",
+      basePrice: 125000,
+      categoryId: catHeadwear.id,
+      brand: "TEFA Headwear",
+      imageUrl: "https://images.unsplash.com/photo-1588850567047-3806b81f577a?q=80&w=600",
+      variants: [
+        { sku: "CP-NVY-OS", color: "Navy", colorHex: "#000080", size: "All Size", stock: 40 },
+        { sku: "CP-KHK-OS", color: "Khaki", colorHex: "#C3B091", size: "All Size", stock: 35 },
+      ]
+    },
+    {
+      name: "Beanie Knit Soft",
+      description: "Beanie rajut lembut untuk cuaca dingin.",
+      basePrice: 85000,
+      categoryId: catHeadwear.id,
+      brand: "TEFA Headwear",
+      imageUrl: "https://images.unsplash.com/photo-1576871337632-b9aef4c17ab9?q=80&w=600",
+      variants: [
+        { sku: "BN-BLK-OS", color: "Black", colorHex: "#000000", size: "All Size", stock: 50 },
+      ]
+    },
+    // Bags
+    {
+      name: "Canvas Tote Bag XL",
+      description: "Tote bag kanvas super kuat untuk belanja atau laptop.",
+      basePrice: 95000,
       categoryId: catBags.id,
       brand: "TEFA Eco",
-      imageUrl: "https://images.unsplash.com/photo-1597404294360-feeeda04612e?q=80&w=600&auto=format&fit=crop",
-      variants: {
-        create: [
-          { sku: "TOTE-CRM-OS", color: "Cream", colorHex: "#FFFDD0", size: "ONE_SIZE", stock: 40 },
-        ]
-      }
+      imageUrl: "https://images.unsplash.com/photo-1597404294360-feeeda04612e?q=80&w=600",
+      variants: [
+        { sku: "TB-CRM-OS", color: "Cream", colorHex: "#F5F5DC", size: "OS", stock: 100 },
+      ]
+    },
+    {
+      name: "Urban Backpack 20L",
+      description: "Backpack minimalis dengan kompartemen laptop.",
+      basePrice: 450000,
+      categoryId: catBags.id,
+      brand: "TEFA Travel",
+      imageUrl: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=600",
+      variants: [
+        { sku: "BP-BLK-OS", color: "Matte Black", colorHex: "#1A1A1A", size: "OS", stock: 15 },
+      ]
+    },
+    // Stationery
+    {
+      name: "Notebook Dot Matrix",
+      description: "Buku catatan hardcover dengan kertas 100gsm.",
+      basePrice: 75000,
+      categoryId: catStationery.id,
+      brand: "TEFA Write",
+      imageUrl: "https://images.unsplash.com/photo-1531346878377-a5be20888e57?q=80&w=600",
+      variants: [
+        { sku: "NB-BLU-A5", color: "Blue", colorHex: "#0000FF", size: "A5", stock: 60 },
+      ]
     }
-  });
+  ];
 
-  // 5. Buat Beberapa Customer dan Supplier dummy
+  for (const p of products) {
+    const { variants, ...prodData } = p;
+    await prisma.product.create({
+      data: {
+        ...prodData,
+        variants: {
+          create: variants
+        }
+      }
+    });
+  }
+  console.log(`👕 Created ${products.length} products with variants`);
+
+  // 5. Customers & Suppliers
   await prisma.customer.createMany({
     data: [
-      { firstName: "Budi", lastName: "Santoso", phone: "081234567890" },
-      { firstName: "Siti", lastName: "Aminah", phone: "081987654321" },
-      { firstName: "Reza", lastName: "Rahadian", phone: "085612344321" },
+      { firstName: "Ahmad", lastName: "Fauzi", phone: "081211112222" },
+      { firstName: "Siska", lastName: "Putri", phone: "081333334444" },
+      { firstName: "Bambang", lastName: "Pamungkas", phone: "081999998888" },
+      { firstName: "Dewi", lastName: "Sartika", phone: "085777776666" },
+      { firstName: "Rian", lastName: "Hidayat", phone: "081288887777" },
     ]
   });
 
   await prisma.supplier.createMany({
     data: [
-      { name: "Vendor Kain Bandung", contactName: "Mang Oleh", phone: "081324121212" },
-      { name: "Pabrik Bordir Jaya", contactName: "Pak Jaya", phone: "087788998899" },
+      { name: "Vendor Garmen Bandung", contactName: "Pak Haji", phone: "081122334455" },
+      { name: "Percetakan Jaya", contactName: "Ibu Ani", phone: "087766554433" },
+      { name: "Suplier Tas Impor", contactName: "Mr. Chen", phone: "089988776655" },
     ]
   });
+  console.log("👥 Created customers and suppliers");
 
-  console.log("Seeding completed!");
+  // 6. Generate random orders for historical data (last 7 days)
+  console.log("📊 Generating historical orders for dashboard...");
+  const allVariants = await prisma.productVariant.findMany({
+    include: { product: true }
+  });
+
+  const paymentMethods: any[] = ["CASH", "CARD", "QRIS"];
+  
+  for (let i = 0; i < 50; i++) {
+    const randomVariant = allVariants[Math.floor(Math.random() * allVariants.length)];
+    const quantity = Math.floor(Math.random() * 3) + 1;
+    const unitPrice = randomVariant.price || randomVariant.product.basePrice;
+    const subtotal = unitPrice * quantity;
+    const taxAmount = subtotal * 0.11;
+    const total = subtotal + taxAmount;
+    
+    // Random date in the last 7 days
+    const date = new Date();
+    date.setDate(date.getDate() - Math.floor(Math.random() * 7));
+    date.setHours(Math.floor(Math.random() * 12) + 9); // Business hours 09:00 - 21:00
+
+    await prisma.order.create({
+      data: {
+        orderNumber: `ORD-${Date.now()}-${i}`,
+        status: "PAID",
+        paymentMethod: paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+        subtotal,
+        taxAmount,
+        total,
+        cashierName: "Super Admin",
+        createdAt: date,
+        items: {
+          create: {
+            productId: randomVariant.productId,
+            variantId: randomVariant.id,
+            quantity,
+            unitPrice,
+            subtotal,
+            snapshot: {
+              name: randomVariant.product.name,
+              size: randomVariant.size,
+              color: randomVariant.color
+            } as any
+          }
+        }
+      }
+    });
+  }
+
+  console.log("✅ Seeding completed successfully!");
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error("❌ Seeding failed:", e);
     process.exit(1);
   })
   .finally(async () => {

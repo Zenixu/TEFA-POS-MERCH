@@ -4,8 +4,8 @@ import { jwtVerify } from "jose";
 const secretKey = process.env.JWT_SECRET || "pos-merch-super-secret-key";
 const key = new TextEncoder().encode(secretKey);
 
-// Public routes that don't require authentication
-const publicRoutes = ["/", "/login", "/register", "/api/auth/login", "/api/auth/register"];
+// Public pages that don't require authentication
+const publicPages = ["/login", "/register"];
 
 // Routes restricted to MANAGER or SUPERADMIN only
 const managerRoutes = ["/dashboard", "/products", "/categories"];
@@ -13,11 +13,15 @@ const managerRoutes = ["/dashboard", "/products", "/categories"];
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Allow public routes and static assets
+  // 1. Allow public pages exactly
+  if (publicPages.includes(pathname)) {
+    return NextResponse.next();
+  }
+
+  // 2. Allow auth APIs and static assets
   if (
-    publicRoutes.some((route) => pathname.startsWith(route)) ||
-    pathname.startsWith("/_next") ||
     pathname.startsWith("/api/auth") ||
+    pathname.startsWith("/_next") ||
     pathname.includes(".")
   ) {
     return NextResponse.next();
@@ -25,7 +29,7 @@ export async function proxy(request: NextRequest) {
 
   const token = request.cookies.get("auth_token")?.value;
 
-  // No token → redirect to login
+  // 3. No token → redirect to login
   if (!token) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("redirect", pathname);
@@ -39,15 +43,15 @@ export async function proxy(request: NextRequest) {
 
     const role = payload.role as string;
 
-    // Check RBAC for manager-only routes
+    // 4. Check RBAC for manager-only routes
     if (managerRoutes.some((route) => pathname.startsWith(route))) {
       if (role === "CASHIER") {
-        // Cashier trying to access manager routes → redirect to POS
+        // Cashier trying to access manager routes → redirect to POS (root)
         return NextResponse.redirect(new URL("/", request.url));
       }
     }
 
-    // Inject user info into request headers for downstream use
+    // 5. Inject user info into request headers for downstream use
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.userId as string);
     requestHeaders.set("x-user-role", role);
@@ -56,8 +60,8 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({
       request: { headers: requestHeaders },
     });
-  } catch {
-    // Invalid or expired token → redirect to login
+  } catch (error) {
+    // Invalid or expired token → clear cookie and redirect to login
     const loginUrl = new URL("/login", request.url);
     const response = NextResponse.redirect(loginUrl);
     response.cookies.set("auth_token", "", {
@@ -69,13 +73,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon)
-     */
-    "/((?!_next/static|_next/image|favicon.ico).*)",
-  ],
+  matcher: ["/", "/dashboard/:path*", "/products/:path*", "/categories/:path*", "/customers/:path*", "/suppliers/:path*", "/history/:path*"],
 };

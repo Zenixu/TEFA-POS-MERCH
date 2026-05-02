@@ -3,6 +3,7 @@ import { destroySession } from "@/lib/auth";
 
 export async function POST() {
   try {
+    // Clear legacy JWT cookie
     await destroySession();
     return NextResponse.json({ success: true });
   } catch (error) {

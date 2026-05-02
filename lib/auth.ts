@@ -1,5 +1,6 @@
 import { SignJWT, jwtVerify } from "jose";
 import { cookies } from "next/headers";
+import { auth } from "@/auth";
 
 const secretKey = process.env.JWT_SECRET || "pos-merch-super-secret-key";
 const key = new TextEncoder().encode(secretKey);
@@ -27,13 +28,35 @@ export async function decrypt(input: string): Promise<any> {
   return payload;
 }
 
-export async function getSession() {
+/**
+ * Hybrid session getter: checks NextAuth session first, 
+ * then falls back to legacy JWT cookie for backward compatibility.
+ */
+export async function getSession(): Promise<SessionPayload | null> {
+  // 1. Try NextAuth session first
+  try {
+    const nextAuthSession = await auth();
+    if (nextAuthSession?.user) {
+      const user = nextAuthSession.user as any;
+      return {
+        userId: user.id || "",
+        email: user.email || "",
+        role: user.role || "CASHIER",
+        branchId: user.branchId || null,
+        firstName: user.firstName || user.name?.split(" ")[0] || "",
+      };
+    }
+  } catch {
+    // NextAuth session not available, try legacy
+  }
+
+  // 2. Fallback to legacy JWT cookie
   const session = (await cookies()).get("auth_token")?.value;
   if (!session) return null;
-  
+
   try {
     return await decrypt(session);
-  } catch (error) {
+  } catch {
     return null;
   }
 }

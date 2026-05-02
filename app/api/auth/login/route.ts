@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
       where: { email: email.toLowerCase() },
     });
 
-    if (!user) {
+    if (!user || !user.passwordHash) {
       return NextResponse.json(
         { error: "Email atau password salah" },
         { status: 401 }

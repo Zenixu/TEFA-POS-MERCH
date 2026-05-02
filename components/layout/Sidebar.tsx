@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+import { signOut as nextAuthSignOut } from "next-auth/react";
 import { cn } from "@/lib/utils";
 import {
   ShoppingCart,
@@ -42,7 +43,10 @@ export default function Sidebar() {
   }, []);
 
   const handleLogout = async () => {
+    // Clear legacy JWT cookie
     await fetch("/api/auth/logout", { method: "POST" });
+    // Sign out from NextAuth (clears NextAuth session cookie)
+    await nextAuthSignOut({ redirect: false });
     window.location.href = "/login";
   };
 
@@ -108,10 +112,12 @@ export default function Sidebar() {
         {/* User Info & Logout */}
         <div className="border-t border-navy-500/30">
           {user && !collapsed && (
-            <div className="px-4 py-3">
-              <p className="text-xs font-semibold text-white truncate">{user.firstName}</p>
-              <p className="text-[10px] text-navy-300 uppercase tracking-wider">{user.role}</p>
-            </div>
+            <Link href="/profile" className="block px-4 py-3 hover:bg-white/5 transition-colors cursor-pointer group">
+              <p className="text-xs font-semibold text-white truncate group-hover:text-emerald-400 transition-colors">{user.firstName}</p>
+              <p className="text-[10px] text-navy-300 uppercase tracking-wider">
+                {user.role} <span className="lowercase text-emerald-500/80 ml-1">(edit profil)</span>
+              </p>
+            </Link>
           )}
           <button
             onClick={handleLogout}

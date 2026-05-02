@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans, DM_Mono } from "next/font/google";
+import AuthProvider from "@/components/providers/AuthProvider";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -34,7 +35,7 @@ export default function RootLayout({
   return (
     <html lang="id" className={`${dmSans.variable} ${dmMono.variable} h-full`}>
       <body className="min-h-full bg-background text-foreground font-sans antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
       </body>
     </html>
   );

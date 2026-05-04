@@ -13,7 +13,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 
 const allNavItems = [
-  { href: "/", label: "Kasir", icon: ShoppingCart, roles: ["CASHIER", "MANAGER", "SUPERADMIN"] },
+  { href: "/pos", label: "Kasir", icon: ShoppingCart, roles: ["CASHIER", "MANAGER", "SUPERADMIN"] },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["MANAGER", "SUPERADMIN"] },
   { href: "/products", label: "Produk", icon: Package, roles: ["MANAGER", "SUPERADMIN"] },
   { href: "/categories", label: "Kategori", icon: Tags, roles: ["MANAGER", "SUPERADMIN"] },
@@ -40,8 +40,8 @@ export default function BottomBar() {
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-border shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
       <div className="flex items-center justify-around h-20 px-4 pb-2">
         {navItems.map((item) => {
-          const isActive = item.href === "/"
-            ? pathname === "/"
+          const isActive = item.href === "/pos"
+            ? pathname === "/pos"
             : pathname.startsWith(item.href);
 
           return (

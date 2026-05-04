@@ -12,7 +12,7 @@ export default async function DashboardPage() {
 
   // Check RBAC: Only MANAGER or SUPERADMIN can access dashboard
   if (session.role === "CASHIER") {
-    redirect("/"); // Redirect cashiers to POS page
+    redirect("/pos"); // Redirect cashiers to POS page
   }
 
   return <DashboardClient />;

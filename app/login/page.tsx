@@ -35,7 +35,7 @@ export default function LoginPage() {
 
       // Hard redirect so middleware sees the new cookie immediately
       if (data.user.role === "CASHIER") {
-        window.location.href = "/";
+        window.location.href = "/pos";
       } else {
         window.location.href = "/dashboard";
       }
@@ -50,7 +50,7 @@ export default function LoginPage() {
     setGoogleLoading(true);
     setError("");
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/pos" });
     } catch {
       setError("Gagal masuk dengan Google");
       setGoogleLoading(false);

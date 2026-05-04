@@ -81,8 +81,8 @@ export async function proxy(request: NextRequest) {
   // 6. Check RBAC for manager-only routes
   if (managerRoutes.some((route) => pathname.startsWith(route))) {
     if (role === "CASHIER") {
-      // Cashier trying to access manager routes → redirect to POS (root)
-      return NextResponse.redirect(new URL("/", request.url));
+      // Cashier trying to access manager routes → redirect to POS
+      return NextResponse.redirect(new URL("/pos", request.url));
     }
   }
 
@@ -98,5 +98,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/", "/profile/:path*", "/dashboard/:path*", "/products/:path*", "/categories/:path*", "/customers/:path*", "/suppliers/:path*", "/history/:path*"],
+  matcher: ["/pos", "/profile/:path*", "/dashboard/:path*", "/products/:path*", "/categories/:path*", "/customers/:path*", "/suppliers/:path*", "/history/:path*"],
 };

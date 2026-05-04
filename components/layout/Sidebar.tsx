@@ -20,7 +20,7 @@ import {
 import { useState, useEffect, useMemo } from "react";
 
 const allNavItems = [
-  { href: "/", label: "Kasir POS", icon: ShoppingCart, roles: ["CASHIER", "MANAGER", "SUPERADMIN"] },
+  { href: "/pos", label: "Kasir POS", icon: ShoppingCart, roles: ["CASHIER", "MANAGER", "SUPERADMIN"] },
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["MANAGER", "SUPERADMIN"] },
   { href: "/products", label: "Produk", icon: Package, roles: ["MANAGER", "SUPERADMIN"] },
   { href: "/categories", label: "Kategori", icon: Tags, roles: ["MANAGER", "SUPERADMIN"] },
@@ -83,8 +83,8 @@ export default function Sidebar() {
         <nav className="flex-1 py-4 px-3 space-y-1">
           {navItems.map((item) => {
             const isActive =
-              item.href === "/"
-                ? pathname === "/"
+              item.href === "/pos"
+                ? pathname === "/pos"
                 : pathname.startsWith(item.href);
             return (
               <Link
@@ -151,8 +151,8 @@ export default function Sidebar() {
         <nav className="flex-1 py-4 px-2 space-y-1">
           {navItems.map((item) => {
             const isActive =
-              item.href === "/"
-                ? pathname === "/"
+              item.href === "/pos"
+                ? pathname === "/pos"
                 : pathname.startsWith(item.href);
             return (
               <Link

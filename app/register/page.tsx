@@ -13,7 +13,7 @@ export default function RegisterPage() {
     setGoogleLoading(true);
     setError("");
     try {
-      await signIn("google", { callbackUrl: "/" });
+      await signIn("google", { callbackUrl: "/pos" });
     } catch {
       setError("Gagal mendaftar dengan Google");
       setGoogleLoading(false);
